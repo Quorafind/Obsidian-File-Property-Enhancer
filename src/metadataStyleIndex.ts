@@ -104,7 +104,7 @@ export default class MetadataStylePlugin extends Plugin {
 				around(propertyCON.prototype, {
 					showPropertyMenu: (next: any) =>
 						function (this: any, ...args: any) {
-							if ((args[0] as PointerEvent).ctrlKey) {
+							if ((args[0] as PointerEvent).ctrlKey || (args[0] as PointerEvent).metaKey) {
 								const picker = createModal(this);
 								picker.open();
 								return;

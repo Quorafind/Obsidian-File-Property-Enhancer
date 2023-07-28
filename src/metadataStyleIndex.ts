@@ -40,12 +40,13 @@ export default class MetadataStylePlugin extends Plugin {
 					icon: selected.emoji ? selected.emoji.native : selected.icon,
 					type: selected.type as IconType,
 				}
-				if (selected.type === "emoji") {
-					renderEmojiIcon(property, icon);
-				} else {
-					renderLucideIcon(property, icon);
-				}
+				// if (selected.type === "emoji") {
+				// 	renderEmojiIcon(property, icon);
+				// } else {
+				// 	renderLucideIcon(property, icon);
+				// }
 				saveIconToList(icon);
+				this.app.metadataTypeManager.trigger("changed", property.entry.key);
 			});
 		}
 
@@ -114,14 +115,12 @@ export default class MetadataStylePlugin extends Plugin {
 					renderProperty: (next: any) =>
 						function (this: any, ...args: any) {
 							next.apply(this, args);
-							setTimeout(() => {
-								const icon = getIcon(this.entry.key);
-								if (icon && icon.type === "emoji") {
-									renderEmojiIcon(this, icon);
-								} else if (icon && icon.type === "lucide") {
-									renderLucideIcon(this, icon);
-								}
-							}, 0);
+							const icon = getIcon(this.entry.key);
+							if (icon && icon.type === "emoji") {
+								renderEmojiIcon(this, icon);
+							} else if (icon && icon.type === "lucide") {
+								renderLucideIcon(this, icon);
+							}
 						},
 					// Prevent focus on input when click on icon
 					focusValue: (next: any) =>

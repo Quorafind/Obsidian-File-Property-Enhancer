@@ -2,10 +2,14 @@
 	"id": "metadata-style",
 	"name": "Metadata Style",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"minAppVersion": "1.4.0",
+	"description": "Add custom icon/emoji/style to metadata in file properties.",
+	"author": "Boninall",
+	"authorUrl": "https://github.com/Quorafind",
+	"isDesktopOnly": true,
+	"fundingUrl": {
+		"Buy Me a Coffee": "https://www.buymeacoffee.com/boninall",
+		"爱发电": "https://afdian.net/a/boninall",
+		"支付宝": "https://cdn.jsdelivr.net/gh/Quorafind/.github@main/IMAGE/%E6%94%AF%E4%BB%98%E5%AE%9D%E4%BB%98%E6%AC%BE%E7%A0%81.jpg"
+	}
 }

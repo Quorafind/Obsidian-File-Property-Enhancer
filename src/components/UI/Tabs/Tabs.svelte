@@ -1,26 +1,37 @@
 <script>
-	import {setContext} from "svelte";
+	import {createEventDispatcher, setContext} from "svelte";
 	import {writable} from "svelte/store";
+	import TabIcon from "./TabIcon.svelte";
 
 	export let activeTabValue;
 	const items = writable([]);
 
 	const activeTabValueStore = writable(activeTabValue);
 
+	// 创建事件调度器
+	const dispatch = createEventDispatcher();
+
 	setContext('items', items);
 	setContext('activeTabValue', activeTabValueStore);
 
 	$: activeTabValue = $activeTabValueStore;
+
+	// 新方法，用于更新 activeTabValue 并触发 switch 事件
+	function updateActiveTab(itemValue) {
+		$activeTabValueStore = itemValue;
+		dispatch('switch', itemValue);  // 触发 switch 事件并传递 itemValue
+	}
 </script>
 
-<ul>
-	{#each $items as item}
-		<li class:active={$activeTabValueStore === item.value}>
-            <span role="button" on:click={() => $activeTabValueStore = item.value}>
+<ul class="metadata-style-tabs">
+	{#each $items as item, idx}
+		<li class:active={$activeTabValueStore === item.value} class="metadata-style-tab-header">
+            <span class="metadata-style-tab-header-container" role="button" tabindex={idx}
+				  on:click={() => updateActiveTab(item.value)}>
                 {#if item.icon}
-                    <i class={item.icon}></i>
+                    <TabIcon icon={item.icon}/>
                 {/if}
-				{item.title}
+				<span class="metadata-style-tab-header-content">{item.title}</span>
             </span>
 		</li>
 	{/each}
@@ -28,36 +39,4 @@
 
 <slot/>
 
-<style>
-	ul {
-		display: flex;
-		flex-wrap: wrap;
-		padding-left: 0;
-		margin-bottom: 0;
-		list-style: none;
-		border-bottom: 1px solid #dee2e6;
-	}
-
-	li {
-		margin-bottom: -1px;
-	}
-
-	span {
-		border: 1px solid transparent;
-		border-top-left-radius: 0.25rem;
-		border-top-right-radius: 0.25rem;
-		display: block;
-		padding: 0.5rem 1rem;
-		cursor: pointer;
-	}
-
-	span:hover {
-		border-color: #e9ecef #e9ecef #dee2e6;
-	}
-
-	li.active > span {
-		color: #495057;
-		background-color: #fff;
-		border-color: #dee2e6 #dee2e6 #fff;
-	}
-</style>
+<style></style>

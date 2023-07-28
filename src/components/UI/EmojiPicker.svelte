@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Picker } from "emoji-mart";
 	import data from "@emoji-mart/data";
-	import { onMount } from "svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 
 	let emojiRef;
+	const dispatch = createEventDispatcher();
 
 	onMount(() => {
-		console.log(data);
 		const emojiPicker = new Picker({
 			data: data,
 			onEmojiSelect: select,
@@ -15,7 +15,10 @@
 	})
 
 	function select(emoji) {
-		console.log(emoji);
+		dispatch('emojiSelect', {
+			emoji: emoji,
+			type: "emoji"
+		});
 	}
 </script>
 

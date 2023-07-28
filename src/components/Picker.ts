@@ -3,6 +3,7 @@ import PickerComponent from './UI/PickerComponent.svelte';
 
 export class PickerModal extends Modal {
 	private cb: (emoji: any) => void;
+	private picker: PickerComponent;
 
 	constructor(app: App, cb: (emoji: any) => void) {
 		super(app);
@@ -10,10 +11,11 @@ export class PickerModal extends Modal {
 	}
 
 	onOpen() {
-		const picker = new PickerComponent({
+		this.containerEl.toggleClass("icon-picker-modal", true);
+		this.picker = new PickerComponent({
 			target: (this as any).contentEl, props: {}
 		});
-		picker.$on('select', (e: any) => {
+		this.picker.$on('select', (e: any) => {
 			this.select(e.detail);
 		});
 	}
@@ -22,5 +24,9 @@ export class PickerModal extends Modal {
 	select(emoji: any) {
 		this.cb(emoji);
 		this.close();
+	}
+
+	onClose() {
+		this.picker.$destroy();
 	}
 }

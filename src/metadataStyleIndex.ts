@@ -1,6 +1,7 @@
 import { ExtraButtonComponent, Plugin } from 'obsidian';
 import { around } from "monkey-around";
 import { PickerModal } from "./components/Picker";
+import "./styles/custom.css";
 
 type IconType = "emoji" | "lucide";
 
@@ -25,8 +26,6 @@ export default class MetadataStylePlugin extends Plugin {
 		await this.loadSettings();
 
 		this.patchMetadata();
-		this.patchFilePropertyView();
-		this.patchAllPropertyView();
 	}
 
 	onunload() {
@@ -34,6 +33,22 @@ export default class MetadataStylePlugin extends Plugin {
 	}
 
 	patchMetadata() {
+		const createModal = (property: any) => {
+			return new PickerModal(this.app, (selected) => {
+				const icon = {
+					name: property.entry.key,
+					icon: selected.emoji ? selected.emoji.native : selected.icon,
+					type: selected.type as IconType,
+				}
+				if (selected.type === "emoji") {
+					renderEmojiIcon(property, icon);
+				} else {
+					renderLucideIcon(property, icon);
+				}
+				saveIconToList(icon);
+			});
+		}
+
 		const saveIconToList = (icon: MetadataIcon) => {
 			// Check if have same name in icon list;
 			const index = this.settings.iconList.findIndex((item) => item.name === icon.name);
@@ -54,16 +69,26 @@ export default class MetadataStylePlugin extends Plugin {
 			}
 		}
 
-		const renderIcon = (property: any, icon: MetadataIcon) => {
+		const createIconBase = (property: any) => {
 			property.iconEl.empty();
 			const spanEl = property.iconEl.createSpan();
 
 			const button = new ExtraButtonComponent(spanEl);
 			button.setTooltip(`Current Type: ${property.typeInfo.inferred.type}`);
-			button.extraSettingsEl.empty();
-			button.extraSettingsEl.createSpan().innerText = icon.icon;
 			button.extraSettingsEl.toggleClass(["setting-editor-extra-setting-button"], false);
 			button.extraSettingsEl.toggleClass(["metadata-style-icon"], true);
+			return button;
+		}
+
+		const renderEmojiIcon = (property: any, icon: MetadataIcon) => {
+			const button = createIconBase(property);
+			button.extraSettingsEl.empty();
+			button.extraSettingsEl.createSpan({text: icon.icon})
+		}
+
+		const renderLucideIcon = (property: any, icon: MetadataIcon) => {
+			const button = createIconBase(property);
+			button.setIcon(icon.icon);
 		}
 
 		const patchProperty = () => {
@@ -75,40 +100,32 @@ export default class MetadataStylePlugin extends Plugin {
 			if (!property) return false;
 			const propertyCON = property.constructor;
 
-			console.log(property);
-
 			this.register(
 				around(propertyCON.prototype, {
-					showPropertyMenu: (next) =>
-						function (...args: any) {
+					showPropertyMenu: (next: any) =>
+						function (this: any, ...args: any) {
 							if ((args[0] as PointerEvent).ctrlKey) {
-								const picker = new PickerModal(app, (emoji) => {
-									const icon = {
-										name: this.entry.key,
-										icon: emoji.native,
-										type: "emoji" as IconType,
-									}
-									renderIcon(this, icon);
-									saveIconToList(icon);
-								});
+								const picker = createModal(this);
 								picker.open();
 								return;
 							}
 							next.call(this, ...args);
 						},
-					renderProperty: (next) =>
-						function (...args: any) {
+					renderProperty: (next: any) =>
+						function (this: any, ...args: any) {
 							next.apply(this, args);
 							setTimeout(() => {
-								console.log(args);
 								const icon = getIcon(this.entry.key);
 								if (icon && icon.type === "emoji") {
-									renderIcon(this, icon);
+									renderEmojiIcon(this, icon);
+								} else if (icon && icon.type === "lucide") {
+									renderLucideIcon(this, icon);
 								}
 							}, 0);
 						},
-					focusValue: (next) =>
-						function (...args: any) {
+					// Prevent focus on input when click on icon
+					focusValue: (next: any) =>
+						function (this: any, ...args: any) {
 							const result = next && next.apply(this, args);
 							setTimeout(() => {
 								next.apply(this, args);
@@ -129,12 +146,6 @@ export default class MetadataStylePlugin extends Plugin {
 				this.registerEvent(evt);
 			}
 		});
-	}
-
-	patchFilePropertyView() {
-	}
-
-	patchAllPropertyView() {
 	}
 
 	async loadSettings() {

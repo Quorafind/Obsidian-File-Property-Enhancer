@@ -2,6 +2,7 @@ import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
 import sveltePlugin from "esbuild-svelte";
+import fs from "fs";
 
 const banner =
 	`/*
@@ -12,12 +13,26 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = (process.argv[2] === "production");
 
+const renamePlugin = () => ({
+	name: 'rename-plugin',
+	setup(build) {
+		build.onEnd(async () => {
+			try {
+				fs.renameSync('./main.css', './styles.css');
+			} catch (e) {
+				console.error('Failed to rename file:', e);
+			}
+		});
+	},
+});
+
 const context = await esbuild.context({
 	banner: {
 		js: banner,
 	},
-	entryPoints: ["src/main.ts"],
+	entryPoints: ["src/metadataStyleIndex.ts"],
 	bundle: true,
+	minify: prod,
 	external: [
 		"obsidian",
 		"electron",
@@ -40,7 +55,8 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	plugins: [
-		sveltePlugin()
+		sveltePlugin(),
+		renamePlugin()
 	]
 });
 

@@ -6,3 +6,48 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.metadata-property {
+	--metadata-property-icon-hover-background-color: var(--background-modifier-hover);
+}
+
+.metadata-property-icon {
+	font-size: var(--size-4-4);
+	padding-right: var(--size-2-2);
+}
+
+.metadata-property-icon:has(.svg-icon) {
+	padding-right: var(--size-4-2);
+}
+
+.metadata-property-icon:hover {
+	background-color: var(--metadata-property-icon-hover-background-color);
+}
+
+.metadata-property-key, .metadata-property {
+	height: var(--input-height);
+}
+
+.metadata-property-key {
+	width: calc(var(--metadata-label-width) + var(--size-4-1));
+}
+
+.metadata-style-icon {
+	padding: 0;
+}
+
+.clickable-icon.metadata-style-icon {
+	background-color: unset !important;
+}
+
+.metadata-property-icon:has(.metadata-style-icon) {
+	min-width: 29px;
+	justify-content: center;
+}
+
+.modal-container:has(em-emoji-picker) .modal {
+	width: auto;
+}
+
+.modal-container:has(em-emoji-picker) .modal-close-button {
+	z-index: 99;
+}

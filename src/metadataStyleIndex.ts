@@ -40,11 +40,6 @@ export default class MetadataStylePlugin extends Plugin {
 					icon: selected.emoji ? selected.emoji.native : selected.icon,
 					type: selected.type as IconType,
 				}
-				// if (selected.type === "emoji") {
-				// 	renderEmojiIcon(property, icon);
-				// } else {
-				// 	renderLucideIcon(property, icon);
-				// }
 				saveIconToList(icon);
 				this.app.metadataTypeManager.trigger("changed", property.entry.key);
 			});

@@ -8,7 +8,7 @@
     let currentTab = "emoji";
     const dispatch = createEventDispatcher();
 
-    function handleSelect(event) {
+    function handleSelect(event: any) {
         dispatch('select', event.detail);
     }
 

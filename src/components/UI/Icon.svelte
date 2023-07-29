@@ -2,9 +2,9 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { setIcon } from "obsidian";
 
-    export let iconName;
+    export let iconName: string;
     export let idx: number;
-    let iconRef;
+    let iconRef: HTMLSpanElement;
     const dispatch = createEventDispatcher();
 
     onMount(() => {
@@ -18,7 +18,7 @@
         })
     }
 
-    function iconClick(icon) {
+    function iconClick(icon: any) {
         dispatch('iconClick', icon);
     }
 </script>

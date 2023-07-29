@@ -3,7 +3,7 @@
     import data from "@emoji-mart/data";
     import { createEventDispatcher, onMount } from "svelte";
 
-    let emojiRef;
+    let emojiRef: HTMLDivElement;
     const dispatch = createEventDispatcher();
 
     onMount(() => {
@@ -11,10 +11,10 @@
             data: data,
             onEmojiSelect: select,
         });
-        emojiRef.append(emojiPicker);
+        emojiRef.append(emojiPicker as unknown as Node);
     })
 
-    function select(emoji) {
+    function select(emoji: any) {
         dispatch('emojiSelect', {
             emoji: emoji,
             type: "emoji"

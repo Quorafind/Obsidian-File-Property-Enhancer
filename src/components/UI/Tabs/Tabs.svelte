@@ -1,9 +1,9 @@
-<script>
-    import {createEventDispatcher, setContext} from "svelte";
-    import {writable} from "svelte/store";
+<script lang="ts">
+    import { createEventDispatcher, setContext } from "svelte";
+    import { writable } from "svelte/store";
     import TabIcon from "./TabIcon.svelte";
 
-    export let activeTabValue;
+    export let activeTabValue: string;
     const items = writable([]);
 
     const activeTabValueStore = writable(activeTabValue);
@@ -17,7 +17,7 @@
     $: activeTabValue = $activeTabValueStore;
 
     // 新方法，用于更新 activeTabValue 并触发 switch 事件
-    function updateActiveTab(itemValue) {
+    function updateActiveTab(itemValue: string) {
         $activeTabValueStore = itemValue;
         dispatch('switch', itemValue);  // 触发 switch 事件并传递 itemValue
     }

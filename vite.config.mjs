@@ -16,7 +16,7 @@ export default defineConfig((variable) => {
         watch: !prod,
         build: {
             sourcemap: prod ? false : 'inline',
-            minify: prod,
+            minify: "terser",
             terserOptions: {
                 compress: {
                     defaults: false,

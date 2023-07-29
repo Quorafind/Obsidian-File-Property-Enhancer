@@ -8,7 +8,7 @@
 
     const iconList = ICON_LIST;
 
-    function select(icon) {
+    function select(icon: any) {
         dispatch('iconSelect', icon.detail);
     }
 </script>

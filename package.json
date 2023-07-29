@@ -4,7 +4,7 @@
   "description": "Add custom icon/emoji/style to metadata in file properties.",
   "main": "main.js",
   "scripts": {
-    "dev": "vite build --watch",
+    "dev": "vite build --watch --mode development",
     "build": "tsc -noEmit -skipLibCheck && vite build --mode production",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },

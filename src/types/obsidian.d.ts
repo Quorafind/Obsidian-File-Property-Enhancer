@@ -11,4 +11,9 @@ declare module "obsidian" {
 	interface WorkspaceLeaf {
 		rebuildView: () => void;
 	}
+
+	interface App {
+		metadataTypeManager: { trigger: (event: string, ...args: any[]) => void; }
+	}
+
 }

@@ -5,14 +5,14 @@ import MetadataStylePlugin from "../metadataStyleIndex";
 type IconRenderType = "file-property" | "all-properties";
 
 export const createModal = (context: MetadataStylePlugin, property: any) => {
-    return new PickerModal(context.app, (selected) => {
+    return new PickerModal(context.app, async (selected) => {
         console.log(property);
         const icon = {
             name: property?.entry?.key || property?.property.key,
             icon: selected.emoji ? selected.emoji.native : selected.icon,
             type: selected.type as IconType,
         }
-        saveIcon(context, icon);
+        await saveIcon(context, icon);
         context.app.metadataTypeManager.trigger("changed", property?.entry?.key || property?.property.key);
     });
 }

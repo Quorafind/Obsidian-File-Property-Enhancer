@@ -17,6 +17,7 @@ export default class MetadataStylePlugin extends Plugin {
 
     async onload() {
         await this.loadSettings();
+        this.registerCommands();
         this.app.workspace.onLayoutReady(() => {
             this.patchFileProperty();
             this.patchAllProperties();
@@ -25,6 +26,30 @@ export default class MetadataStylePlugin extends Plugin {
 
     onunload() {
 
+    }
+
+    registerCommands() {
+        this.addCommand({
+            id: "fold-unfold-file-property",
+            name: "Fold/Unfold Current File Property",
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const activeEditor = this.app.workspace.activeEditor;
+                if (activeEditor) {
+                    // If checking is true, we're simply "checking" if the command can be run.
+                    // If checking is false, then we want to actually perform the operation.
+                    if (!checking) {
+                        const metadataEditor = activeEditor.metadataEditor;
+                        if (metadataEditor) {
+                            metadataEditor.setCollapse(!metadataEditor.collapsed);
+                        }
+                    }
+
+                    // This command will only show up in Command Palette when the check function returns true
+                    return true;
+                }
+            }
+        });
     }
 
     patchFileProperty() {
@@ -91,6 +116,7 @@ export default class MetadataStylePlugin extends Plugin {
             const allPropertiesView = this.app.workspace.getLeavesOfType("all-properties")[0]?.view as any;
 
             if (!allPropertiesView) return false;
+            // @ts-ignore
             const treeItem = allPropertiesView.root.vChildren._children?.first();
 
             if (!treeItem) return false;

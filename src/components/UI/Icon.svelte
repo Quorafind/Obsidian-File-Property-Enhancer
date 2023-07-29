@@ -3,6 +3,7 @@
     import { setIcon } from "obsidian";
 
     export let iconName;
+    export let idx: number;
     let iconRef;
     const dispatch = createEventDispatcher();
 
@@ -17,12 +18,13 @@
         })
     }
 
-    function iconClick(icon: any) {
+    function iconClick(icon) {
         dispatch('iconClick', icon);
     }
 </script>
 
-<span class="metadata-style-icon-picker-icon" bind:this={iconRef} on:click={()=>handleClick()}
+<span role="button" tabindex={idx} class="metadata-style-icon-picker-icon" bind:this={iconRef}
+      on:click={()=>handleClick()}
       on:keypress={()=>handleClick()}></span>
 
 <style></style>

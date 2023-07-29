@@ -11,7 +11,7 @@
             data: data,
             onEmojiSelect: select,
         });
-        emojiRef.append(emojiPicker as unknown as Node);
+        emojiRef.append(emojiPicker);
     })
 
     function select(emoji) {

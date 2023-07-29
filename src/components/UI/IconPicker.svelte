@@ -16,7 +16,7 @@
 <div class="metadata-style-icon-picker">
     <div class="metadata-style-icon-picker-container">
         {#each iconList as icon, idx}
-            <Icon iconName={icon} on:iconClick={select}/>
+            <Icon idx={idx} iconName={icon} on:iconClick={select}/>
         {/each}
     </div>
 </div>

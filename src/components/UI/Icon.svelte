@@ -1,25 +1,30 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from "svelte";
-	import { setIcon } from "obsidian";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { setIcon } from "obsidian";
 
-	export let iconName;
-	let iconRef;
-	const dispatch = createEventDispatcher();
+    export let iconName: string;
+    export let idx: number;
+    let iconRef: HTMLSpanElement;
+    const dispatch = createEventDispatcher();
 
-	onMount(() => {
-		setIcon(iconRef, iconName);
-	})
+    onMount(() => {
+        setIcon(iconRef, iconName);
+    })
 
-	function iconClick(icon) {
-		dispatch('iconClick', icon);
-	}
+    function handleClick() {
+        iconClick({
+            icon: iconName,
+            type: "lucide",
+        })
+    }
+
+    function iconClick(icon: any) {
+        dispatch('iconClick', icon);
+    }
 </script>
 
-<span class="metadata-style-icon-picker-icon" bind:this={iconRef} on:click={()=>{
-	iconClick({
-		icon: iconName,
-		type: "lucide",
-	})
-}}></span>
+<span role="button" tabindex={idx} class="metadata-style-icon-picker-icon" bind:this={iconRef}
+      on:click={()=>handleClick()}
+      on:keypress={()=>handleClick()}></span>
 
 <style></style>

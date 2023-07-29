@@ -1,158 +1,168 @@
-import { ExtraButtonComponent, Plugin } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { around } from "monkey-around";
-import { PickerModal } from "./components/Picker";
 import "./styles/custom.css";
+import { createModal, getIcon, setIcon } from "./utils/utils";
 
-type IconType = "emoji" | "lucide";
-
-interface MetadataIcon {
-	name: string;
-	icon: string;
-	type: IconType;
-}
 
 interface metadataStyleSettings {
-	iconList: MetadataIcon[];
+    iconList: MetadataIcon[];
 }
 
 const DEFAULT_SETTINGS: metadataStyleSettings = {
-	iconList: []
+    iconList: []
 }
 
 export default class MetadataStylePlugin extends Plugin {
-	settings: metadataStyleSettings;
+    settings: metadataStyleSettings;
 
-	async onload() {
-		await this.loadSettings();
+    async onload() {
+        await this.loadSettings();
+        this.registerCommands();
+        this.app.workspace.onLayoutReady(() => {
+            this.patchFileProperty();
+            this.patchAllProperties();
+        })
+    }
 
-		this.patchMetadata();
-	}
+    onunload() {
 
-	onunload() {
+    }
 
-	}
+    registerCommands() {
+        this.addCommand({
+            id: "fold-unfold-file-property",
+            name: "Fold/Unfold Current File Property",
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const activeEditor = this.app.workspace.activeEditor;
+                if (activeEditor) {
+                    // If checking is true, we're simply "checking" if the command can be run.
+                    // If checking is false, then we want to actually perform the operation.
+                    if (!checking) {
+                        const metadataEditor = activeEditor.metadataEditor;
+                        if (metadataEditor) {
+                            metadataEditor.setCollapse(!metadataEditor.collapsed);
+                        }
+                    }
 
-	patchMetadata() {
-		const createModal = (property: any) => {
-			return new PickerModal(this.app, (selected) => {
-				const icon = {
-					name: property.entry.key,
-					icon: selected.emoji ? selected.emoji.native : selected.icon,
-					type: selected.type as IconType,
-				}
-				if (selected.type === "emoji") {
-					renderEmojiIcon(property, icon);
-				} else {
-					renderLucideIcon(property, icon);
-				}
-				saveIconToList(icon);
-			});
-		}
+                    // This command will only show up in Command Palette when the check function returns true
+                    return true;
+                }
+            }
+        });
+    }
 
-		const saveIconToList = (icon: MetadataIcon) => {
-			// Check if have same name in icon list;
-			const index = this.settings.iconList.findIndex((item) => item.name === icon.name);
-			if (index !== -1) {
-				this.settings.iconList[index] = icon;
-			} else {
-				this.settings.iconList.push(icon);
-			}
-			this.saveSettings();
-		}
+    patchFileProperty() {
+        const createIconModal = (property: any) => createModal(this, property);
+        const getMetadataIcon = (key: string): MetadataIcon | null => getIcon(this, key);
 
-		const getIcon = (key: string): MetadataIcon | null => {
-			const index = this.settings.iconList.findIndex((item) => item.name === key);
-			if (index !== -1) {
-				return this.settings.iconList[index];
-			} else {
-				return null;
-			}
-		}
+        const patchPropertyInList = () => {
+            const editor = this.app.workspace.activeEditor;
 
-		const createIconBase = (property: any) => {
-			property.iconEl.empty();
-			const spanEl = property.iconEl.createSpan();
+            if (!editor) return false;
+            const property = editor.metadataEditor.rendered.first();
 
-			const button = new ExtraButtonComponent(spanEl);
-			button.setTooltip(`Current Type: ${property.typeInfo.inferred.type}`);
-			button.extraSettingsEl.toggleClass(["setting-editor-extra-setting-button"], false);
-			button.extraSettingsEl.toggleClass(["metadata-style-icon"], true);
-			return button;
-		}
+            if (!property) return false;
+            const propertyCON = property.constructor;
 
-		const renderEmojiIcon = (property: any, icon: MetadataIcon) => {
-			const button = createIconBase(property);
-			button.extraSettingsEl.empty();
-			button.extraSettingsEl.createSpan({text: icon.icon})
-		}
+            this.register(
+                around(propertyCON.prototype, {
+                    showPropertyMenu: (next: any) =>
+                        function (this: any, ...args: any) {
+                            if ((args[0] as PointerEvent).ctrlKey || (args[0] as PointerEvent).metaKey) {
+                                createIconModal(this).open();
+                                return;
+                            }
+                            next.call(this, ...args);
+                        },
+                    renderProperty: (next: any) =>
+                        function (this: any, ...args: any) {
+                            next.apply(this, args);
+                            const icon = getMetadataIcon(this.entry.key);
+                            if (!icon) return;
+                            setIcon(this, icon, "file-property");
+                        },
 
-		const renderLucideIcon = (property: any, icon: MetadataIcon) => {
-			const button = createIconBase(property);
-			button.setIcon(icon.icon);
-		}
+                    focusValue: (next: any) =>
+                        function (this: any, ...args: any) {
+                            const result = next && next.apply(this, args);
+                            // Prevent unfocus when changing type of property.
+                            setTimeout(() => {
+                                next.apply(this, args);
+                            }, 30);
+                            return result;
+                        }
+                })
+            );
+            editor.leaf?.rebuildView();
+            console.log("Metadata-Style: metadata editor get patched");
+            return true;
+        };
+        this.app.workspace.onLayoutReady(() => {
+            if (!patchPropertyInList()) {
+                const evt = this.app.workspace.on("layout-change", () => {
+                    patchPropertyInList() && this.app.workspace.offref(evt);
+                });
+                this.registerEvent(evt);
+            }
+        });
+    }
 
-		const patchProperty = () => {
-			const editor = this.app.workspace.activeEditor;
+    patchAllProperties() {
+        const createIconModal = (property: any) => createModal(this, property);
+        const getMetadataIcon = (key: string): MetadataIcon | null => getIcon(this, key);
 
-			if (!editor) return false;
-			const property = editor.metadataEditor.rendered.first();
+        const patchProperty = () => {
+            const allPropertiesView = this.app.workspace.getLeavesOfType("all-properties")[0]?.view as any;
 
-			if (!property) return false;
-			const propertyCON = property.constructor;
+            if (!allPropertiesView) return false;
+            // @ts-ignore
+            const treeItem = allPropertiesView.root.vChildren._children?.first();
 
-			this.register(
-				around(propertyCON.prototype, {
-					showPropertyMenu: (next: any) =>
-						function (this: any, ...args: any) {
-							if ((args[0] as PointerEvent).ctrlKey || (args[0] as PointerEvent).metaKey) {
-								const picker = createModal(this);
-								picker.open();
-								return;
-							}
-							next.call(this, ...args);
-						},
-					renderProperty: (next: any) =>
-						function (this: any, ...args: any) {
-							next.apply(this, args);
-							setTimeout(() => {
-								const icon = getIcon(this.entry.key);
-								if (icon && icon.type === "emoji") {
-									renderEmojiIcon(this, icon);
-								} else if (icon && icon.type === "lucide") {
-									renderLucideIcon(this, icon);
-								}
-							}, 0);
-						},
-					// Prevent focus on input when click on icon
-					focusValue: (next: any) =>
-						function (this: any, ...args: any) {
-							const result = next && next.apply(this, args);
-							setTimeout(() => {
-								next.apply(this, args);
-							}, 30)
-							return result;
-						}
-				})
-			);
-			editor.leaf?.rebuildView();
-			console.log("Metadata-Style: metadata editor get patched");
-			return true;
-		};
-		this.app.workspace.onLayoutReady(() => {
-			if (!patchProperty()) {
-				const evt = this.app.workspace.on("layout-change", () => {
-					patchProperty() && this.app.workspace.offref(evt);
-				});
-				this.registerEvent(evt);
-			}
-		});
-	}
+            if (!treeItem) return false;
+            const treeItemConstructor = treeItem.constructor;
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
+            this.register(
+                around(treeItemConstructor.prototype, {
+                    setProperty: (next: any) =>
+                        function (this: any, ...args: any) {
+                            next.apply(this, args);
+                            const icon = getMetadataIcon(this.property.key);
+                            if (!icon) return;
+                            const button = setIcon(this, icon, "all-properties");
+                            button.onClick(() => createIconModal(this.property));
+                        },
+                    onSelfClick: (next: any) =>
+                        function (this: any, ...args: any) {
+                            if ((args[0] as PointerEvent).ctrlKey || (args[0] as PointerEvent).metaKey) {
+                                createIconModal(this).open();
+                                return;
+                            }
+                            next.call(this, ...args);
+                        }
+                })
+            );
+            allPropertiesView.leaf?.rebuildView();
+            console.log("Metadata-Style: all property view get patched");
+            return true;
+        };
+        this.app.workspace.onLayoutReady(() => {
+            if (!patchProperty()) {
+                const evt = this.app.workspace.on("layout-change", () => {
+                    patchProperty() && this.app.workspace.offref(evt);
+                });
+                this.registerEvent(evt);
+            }
+        });
+    }
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+    async loadSettings() {
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    }
+
+    async saveSettings() {
+        await this.saveData(this.settings);
+    }
 }
+
+

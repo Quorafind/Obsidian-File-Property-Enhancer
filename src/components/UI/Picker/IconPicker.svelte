@@ -13,8 +13,8 @@
     }
 </script>
 
-<div class="metadata-style-icon-picker">
-    <div class="metadata-style-icon-picker-container">
+<div class="file-property-enhancer-icon-picker">
+    <div class="file-property-enhancer-icon-picker-container">
         {#each iconList as icon, idx}
             <Icon idx={idx} iconName={icon} on:iconClick={select}/>
         {/each}

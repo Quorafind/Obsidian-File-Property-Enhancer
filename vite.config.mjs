@@ -39,7 +39,7 @@ export default defineConfig((variable) => {
                 ignoreTryCatch: false,
             },
             lib: {
-                entry: path.resolve(__dirname, './src/metadataStyleIndex.ts'),
+                entry: path.resolve(__dirname, './src/filePropertyEnhancerIndex.ts'),
                 formats: ['cjs'],
             },
             css: {},

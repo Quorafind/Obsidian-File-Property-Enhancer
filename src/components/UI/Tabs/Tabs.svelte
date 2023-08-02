@@ -23,15 +23,15 @@
     }
 </script>
 
-<ul class="metadata-style-tabs">
+<ul class="file-property-enhancer-tabs">
     {#each $items as item, idx}
-        <li class:active={$activeTabValueStore === item.value} class="metadata-style-tab-header">
-            <span class="metadata-style-tab-header-container" role="button" tabindex={idx}
+        <li class:active={$activeTabValueStore === item.value} class="file-property-enhancer-tab-header">
+            <span class="file-property-enhancer-tab-header-container" role="button" tabindex={idx}
                   on:click={() => updateActiveTab(item.value)} on:keypress={()=> updateActiveTab(item.value)}>
                 {#if item.icon}
                     <TabIcon icon={item.icon}/>
                 {/if}
-                <span class="metadata-style-tab-header-content">{item.title}</span>
+                <span class="file-property-enhancer-tab-header-content">{item.title}</span>
             </span>
         </li>
     {/each}

@@ -3,16 +3,16 @@ import { around } from "monkey-around";
 import "./styles/custom.css";
 import { createModal, getIcon, setIcon } from "./utils/utils";
 
-interface metadataStyleSettings {
+interface filePropertyEnhancerSettings {
     iconList: MetadataIcon[];
 }
 
-const DEFAULT_SETTINGS: metadataStyleSettings = {
+const DEFAULT_SETTINGS: filePropertyEnhancerSettings = {
     iconList: []
 }
 
-export default class MetadataStylePlugin extends Plugin {
-    settings: metadataStyleSettings;
+export default class FilePropertyEnhancerPlugin extends Plugin {
+    settings: filePropertyEnhancerSettings;
 
     async onload() {
         await this.loadSettings();

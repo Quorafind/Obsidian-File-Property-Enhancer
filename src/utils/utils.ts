@@ -1,10 +1,10 @@
 import { PickerModal } from "../components/Picker";
 import { ExtraButtonComponent } from "obsidian";
-import MetadataStylePlugin from "../metadataStyleIndex";
+import FilePropertyEnhancerPlugin from "../filePropertyEnhancerIndex";
 
 type IconRenderType = "file-property" | "all-properties";
 
-export const createModal = (context: MetadataStylePlugin, property: any) => {
+export const createModal = (context: FilePropertyEnhancerPlugin, property: any) => {
     return new PickerModal(context.app, async (selected) => {
         console.log(property);
         const icon = {
@@ -26,7 +26,7 @@ export const setIcon = (property: any, icon: MetadataIcon, renderedType: IconRen
     }
 }
 
-export const saveIcon = async (context: MetadataStylePlugin, icon: MetadataIcon) => {
+export const saveIcon = async (context: FilePropertyEnhancerPlugin, icon: MetadataIcon) => {
     const index = context.settings.iconList.findIndex((item) => item.name === icon.name);
     if (index !== -1) {
         context.settings.iconList[index] = icon;
@@ -36,7 +36,7 @@ export const saveIcon = async (context: MetadataStylePlugin, icon: MetadataIcon)
     await context.saveSettings();
 }
 
-export const getIcon = (context: MetadataStylePlugin, key: string): MetadataIcon | null => {
+export const getIcon = (context: FilePropertyEnhancerPlugin, key: string): MetadataIcon | null => {
     const index = context.settings.iconList.findIndex((item) => item.name === key);
     if (index !== -1) {
         return context.settings.iconList[index];

@@ -1,4 +1,4 @@
-# Obsidian File Property Enhance
+# Obsidian File Property Enhancer
 
 > Using this plugin, you can add icons to the file property, and you can also customize the display of the file
 > property.

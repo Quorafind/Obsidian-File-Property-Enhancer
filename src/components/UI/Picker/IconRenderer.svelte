@@ -23,7 +23,7 @@
     }
 </script>
 
-<span role="button" tabindex={idx} class="metadata-style-icon-picker-icon" bind:this={iconRef}
+<span role="button" tabindex={idx} class="file-property-enhancer-icon" bind:this={iconRef}
       on:click={()=>handleClick()}
       on:keypress={()=>handleClick()}></span>
 

@@ -10,6 +10,6 @@
     })
 </script>
 
-<span class="metadata-style-tab-header-icon" bind:this={iconRef}></span>
+<span class="file-property-enhancer-tab-header-icon" bind:this={iconRef}></span>
 
 <style></style>

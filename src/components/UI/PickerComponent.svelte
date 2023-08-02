@@ -1,9 +1,9 @@
 <script lang="ts">
     import Tabs from "./Tabs/Tabs.svelte";
     import TabItem from "./Tabs/TabItem.svelte";
-    import EmojiPicker from "./EmojiPicker.svelte";
+    import EmojiPicker from "./Picker/EmojiPicker.svelte";
+    import IconPicker from "./Picker/IconPicker.svelte";
     import { createEventDispatcher } from "svelte";
-    import IconPicker from "./IconPicker.svelte";
 
     let currentTab = "emoji";
     const dispatch = createEventDispatcher();

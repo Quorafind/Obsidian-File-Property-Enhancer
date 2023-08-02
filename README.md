@@ -1,20 +1,26 @@
-# Obsidian Metadata Style
+# Obsidian File Property Enhance
 
 ## Introduction
 
-An [Obsidian](https://obsidian.md/) plugin that allows you to add custom emoji/icon to your metadata in file properties
+An [Obsidian](https://obsidian.md/) plugin that allows you to improve user experience when using file properties
 in v1.4.0.
 
 ## TODO
 
-- [ ] Support More Icon Set
-- [ ] Support Custom Icon
-- [ ] Support Set Color For Property
+- Icon Related
+    - [ ] Support More Icon Set
+    - [ ] Support Custom Icon
+    - [ ] Support Set Color For Property
+- Feature Related
+    - [ ] Support Custom Property Type
+    - [ ] Support GOAL For number type property
+    - [ ] Support Target Date For date type property
+    - [ ] Support Property Filter
 
 ## Feature
 
 - Core Feature
-	- Change icon in property to emoji/icon.
+    - Change icon in property to emoji/icon.
 
 ## Usage
 

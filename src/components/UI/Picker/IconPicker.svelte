@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { ICON_LIST } from "../../IconList";
-    import Icon from "./Icon.svelte";
+    import { ICON_LIST } from "../../../IconList";
+    import Icon from "./IconRenderer.svelte";
 
     let emojiRef;
     const dispatch = createEventDispatcher();

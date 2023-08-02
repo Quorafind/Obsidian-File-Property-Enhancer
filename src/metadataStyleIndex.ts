@@ -3,7 +3,6 @@ import { around } from "monkey-around";
 import "./styles/custom.css";
 import { createModal, getIcon, setIcon } from "./utils/utils";
 
-
 interface metadataStyleSettings {
     iconList: MetadataIcon[];
 }

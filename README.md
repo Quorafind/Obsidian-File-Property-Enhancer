@@ -1,9 +1,13 @@
 # Obsidian File Property Enhance
 
+> Using this plugin, you can add icons to the file property, and you can also customize the display of the file
+> property.
+> Be careful, this plugin is still in the early stages of development, and there may be some bugs.
+
 ## Introduction
 
-An [Obsidian](https://obsidian.md/) plugin that allows you to improve user experience when using file properties
-in v1.4.0.
+An [Obsidian](https://obsidian.md/) plugin that improve user experience when using file properties like adding icons or
+custom display in v1.4.0.
 
 ## TODO
 

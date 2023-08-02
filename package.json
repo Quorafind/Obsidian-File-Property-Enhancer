@@ -1,7 +1,7 @@
 {
-  "name": "metadata-style",
+  "name": "file-property-enhancer",
   "version": "1.0.0",
-  "description": "Add custom icon/emoji/style to metadata in file properties.",
+  "description": "Improve user experience when using file properties like adding icons or custom display view.",
   "main": "main.js",
   "scripts": {
     "dev": "vite build --watch --mode development",

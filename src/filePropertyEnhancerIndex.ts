@@ -25,6 +25,12 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
 
     onunload() {
 
+        this.app.workspace.onLayoutReady(() => {
+            this.unpatchAllProperties();
+            this.unpatchFileProperty();
+
+            console.log("Metadata-Style: metadata editor get unpatched");
+        })
     }
 
     registerCommands() {
@@ -77,11 +83,11 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                     renderProperty: (next: any) =>
                         function (this: any, ...args: any) {
                             next.apply(this, args);
-                            const icon = getMetadataIcon(this.entry.key);
+
+                            const icon = getMetadataIcon(args[0].key || this.entry.key);
                             if (!icon) return;
                             setIcon(this, icon, "file-property");
                         },
-
                     focusValue: (next: any) =>
                         function (this: any, ...args: any) {
                             const result = next && next.apply(this, args);
@@ -153,6 +159,33 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                 this.registerEvent(evt);
             }
         });
+    }
+
+    unpatchAllProperties() {
+        const leaf = this.app.workspace.getLeavesOfType("all-properties");
+        if (leaf.length === 0) return;
+        for (const item of leaf) {
+            item.rebuildView();
+        }
+    }
+
+    unpatchFileProperty() {
+        const leaves = this.app.workspace.getLeavesOfType('markdown');
+        for (const leaf of leaves) {
+            if (leaf.view.currentMode.sourceMode === true) continue;
+            const metadataEditor = leaf.view.metadataEditor;
+            if (!metadataEditor) continue;
+            const propertyList = metadataEditor.rendered;
+            if (!propertyList) continue;
+            propertyList.forEach((property: any) => {
+                const item = property.entry;
+                try {
+                    property.renderProperty(item, true);
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+        }
     }
 
     async loadSettings() {

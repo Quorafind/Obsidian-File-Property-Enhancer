@@ -8,6 +8,11 @@ declare module "obsidian" {
         metadataEditor: MetadataEditor;
     }
 
+    interface View {
+        currentMode: any;
+        metadataEditor: MetadataEditor;
+    }
+
     interface MetadataEditor {
         rendered: Property[];
         setCollapse: (collapse: boolean) => void;

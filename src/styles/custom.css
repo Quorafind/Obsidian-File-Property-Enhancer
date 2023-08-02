@@ -8,6 +8,11 @@
     padding-right: var(--size-2-2);
 }
 
+span.metadata-property-icon {
+    min-width: 29px;
+    padding-left: 1px;
+}
+
 /*.metadata-property-icon:has(.svg-icon) {*/
 /*	padding-right: var(--size-4-2);*/
 /*}*/

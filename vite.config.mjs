@@ -20,7 +20,7 @@ export default defineConfig((variable) => {
             terserOptions: {
                 compress: {
                     defaults: false,
-                    drop_console: true
+                    drop_console: prod,
                 },
                 mangle: {
                     eval: true,

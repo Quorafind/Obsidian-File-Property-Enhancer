@@ -21,7 +21,7 @@
   },
   "extends": "@tsconfig/svelte/tsconfig.json",
   "include": [
-    "**/globals.d.ts",
+    "**/types/globals.d.ts",
     "**/*.js",
     "**/*.svelte",
     "**/*.ts"

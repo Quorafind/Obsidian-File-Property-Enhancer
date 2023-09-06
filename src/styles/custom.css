@@ -13,6 +13,32 @@ span.metadata-property-icon {
     padding-left: 1px;
 }
 
+.metadata-input-longtext > p {
+    display: inline-block;
+}
+
+.metadata-input-longtext img {
+    max-width: 40px;
+    width: 40px;
+}
+
+.metadata-property:has(.metadata-input-longtext > p, .metadata-input-longtext > div, .is-editing) {
+    height: unset;
+    max-height: fit-content;
+    min-height: fit-content;
+}
+
+.metadata-property:has(.metadata-input-longtext > p, .metadata-input-longtext > div, .is-editing) .metadata-property-key {
+    height: unset;
+    max-height: fit-content;
+    min-height: fit-content;
+}
+
+.metadata-property:has(.metadata-input-longtext > p, .metadata-input-longtext > div, .is-editing) .metadata-input-longtext > p {
+    margin-top: unset;
+    margin-bottom: unset;
+}
+
 /*.metadata-property-icon:has(.svg-icon) {*/
 /*	padding-right: var(--size-4-2);*/
 /*}*/

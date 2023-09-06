@@ -1,24 +1,42 @@
-import { Plugin } from 'obsidian';
+import { MarkdownRenderer, Plugin, setIcon } from 'obsidian';
 import { around } from "monkey-around";
 import "./styles/custom.css";
-import { createModal, getIcon, setIcon } from "./utils/utils";
+import { createModal, getIcon, setPropertyIcon } from "./utils/utils";
+import MetaManager from "./components/MetaManager";
+import "./styles/styles.scss";
+import type { ILeafBanner, MetadataIcon } from "./types/global";
+import type { filePropertyEnhancerSettings } from "./filePropertyEnhancerSettings";
+import { DEFAULT_SETTINGS } from "./filePropertyEnhancerSettings";
 
-interface filePropertyEnhancerSettings {
-    iconList: MetadataIcon[];
-}
+type Modifier = 'Mod' | 'Shift' | 'Alt';
 
-const DEFAULT_SETTINGS: filePropertyEnhancerSettings = {
-    iconList: []
-}
+type ShortcutConfig = {
+    key: string;
+    modifiers: Modifier[];
+    noText: string;
+    withTextPrefix: string;
+    withTextSuffix?: string;
+};
+
+const SHORTCUTS: ShortcutConfig[] = [
+    {key: 'i', modifiers: ['Mod'], noText: '**', withTextPrefix: '*'},
+    {key: 'b', modifiers: ['Mod'], noText: '****', withTextPrefix: '**'},
+    {key: 'k', modifiers: ['Mod', 'Shift'], noText: '[]()', withTextPrefix: '[', withTextSuffix: ']()'},
+    {key: 'h', modifiers: ['Mod', 'Shift'], noText: '====', withTextPrefix: '=='},
+    {key: 'l', modifiers: ['Mod'], noText: '[[]]', withTextPrefix: '[[', withTextSuffix: ']]'},
+];
 
 export default class FilePropertyEnhancerPlugin extends Plugin {
     settings: filePropertyEnhancerSettings;
+    metaManager: MetaManager;
+    loadedBanners: Set<ILeafBanner> = new Set();
 
     async onload() {
         await this.loadSettings();
         this.registerCommands();
         this.app.workspace.onLayoutReady(() => {
             this.patchFileProperty();
+            this.patchFileTextProperty();
             this.patchAllProperties();
         })
     }
@@ -34,6 +52,7 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
     }
 
     registerCommands() {
+        // Deprecated because Obsidian Team Support This
         this.addCommand({
             id: "fold-unfold-file-property",
             name: "Fold/Unfold Current File Property",
@@ -41,8 +60,6 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                 // Conditions to check
                 const activeEditor = this.app.workspace.activeEditor;
                 if (activeEditor) {
-                    // If checking is true, we're simply "checking" if the command can be run.
-                    // If checking is false, then we want to actually perform the operation.
                     if (!checking) {
                         const metadataEditor = activeEditor.metadataEditor;
                         if (metadataEditor) {
@@ -50,7 +67,6 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                         }
                     }
 
-                    // This command will only show up in Command Palette when the check function returns true
                     return true;
                 }
             }
@@ -81,12 +97,39 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                             next.call(this, ...args);
                         },
                     renderProperty: (next: any) =>
-                        function (this: any, ...args: any) {
+                        async function (this: any, ...args: any) {
                             next.apply(this, args);
 
                             const icon = getMetadataIcon(args[0].key || this.entry.key);
-                            if (!icon) return;
-                            setIcon(this, icon, "file-property");
+                            if (icon) {
+                                setPropertyIcon(this, icon, "file-property");
+                                return;
+                            }
+
+                            if (this.entry.type === "number") {
+                                if (!this.valueEl) return;
+                                if (this.valueEl.children.length > 1) return;
+                                const plusEl = createDiv({
+                                    cls: "metadata-input-plus-btn",
+                                })
+                                const minusEl = createDiv({
+                                    cls: "metadata-input-minus-btn",
+                                });
+                                setIcon(plusEl, "plus");
+                                setIcon(minusEl, "minus");
+                                this.valueEl.appendChild(plusEl);
+                                this.valueEl.appendChild(minusEl);
+
+                                plusEl.onClickEvent(() => {
+                                    this.handleUpdateValue(this.entry.value + 1);
+                                    this.renderProperty(this.entry, true);
+                                });
+                                minusEl.onClickEvent(() => {
+                                    this.handleUpdateValue(this.entry.value - 1);
+                                    this.renderProperty(this.entry, true);
+                                });
+                            }
+
                         },
                     focusValue: (next: any) =>
                         function (this: any, ...args: any) {
@@ -107,6 +150,130 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
             if (!patchPropertyInList()) {
                 const evt = this.app.workspace.on("layout-change", () => {
                     patchPropertyInList() && this.app.workspace.offref(evt);
+                });
+                this.registerEvent(evt);
+            }
+        });
+    }
+
+    patchFileTextProperty() {
+
+        const isModifiersMatched = (evt: KeyboardEvent, modifiers: Modifier[]): boolean => {
+            const checks = {
+                'Mod': () => evt.ctrlKey || evt.metaKey,
+                'Shift': () => evt.shiftKey,
+                'Alt': () => evt.altKey
+            };
+
+            return modifiers.every(modifier => checks[modifier]());
+        }
+        const insertTextAtSelection = (text: string) => {
+            const selection = window.getSelection();
+            if (!selection) return;
+
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+
+            // Move the cursor after the inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        const handleKeyShortcut = (evt: KeyboardEvent, config: ShortcutConfig) => {
+            if (evt.key.toLowerCase() !== config.key || !isModifiersMatched(evt, config.modifiers)) return;
+            evt.preventDefault();
+
+            const selection = window.getSelection();
+            if (!selection) return;
+
+            const selectedText = selection.toString().trim();
+
+            if (selectedText === '') {
+                insertTextAtSelection(config.noText);
+            } else {
+                insertTextAtSelection(`${config.withTextPrefix}${selectedText}${config.withTextSuffix || config.withTextPrefix}`);
+            }
+        }
+
+        const patchTextPropertyInList = () => {
+            const editor = this.app.workspace.activeEditor;
+            const propertyList = editor?.metadataEditor?.rendered.filter((property: any) => property.entry.type === "text");
+
+            if (!propertyList?.length) return false;
+
+            const property = propertyList[0];
+            if (!property) return false;
+
+            const renderer = property.rendered;
+
+            this.register(
+                around(renderer.constructor.prototype, {
+                    render: (next: any) =>
+                        async function (this: any, ...args: any) {
+
+                            next.apply(this, ...args);
+                            if (!this.addedEvent) {
+                                this.addedEvent = true;
+                                if (!this.inputEl) return;
+                                // console.log(this.editing, this.value);
+                                (this.inputEl as HTMLElement)?.onClickEvent(() => {
+                                    if (this.editing) return;
+                                    this.editing = true;
+                                    this.inputEl.toggleClass('is-editing', this.editing);
+
+                                    this.inputEl.empty();
+                                    this.inputEl.setText(this.value);
+                                });
+                                (this.inputEl as HTMLElement).addEventListener('blur', () => {
+                                    this.editing = false;
+                                    this.inputEl.toggleClass('is-editing', this.editing);
+                                    this.render();
+                                });
+                                (this.inputEl as HTMLElement).addEventListener('keyup', (evt) => {
+                                    if (!this.editing) return;
+                                    // Support basic markdown shortcuts
+                                    for (const shortcut of SHORTCUTS) {
+                                        handleKeyShortcut(evt, shortcut);
+                                    }
+                                });
+
+                            }
+                            if (this.editing) return;
+                            this.inputEl.empty();
+                            await MarkdownRenderer.render(
+                                this.ctx.app,
+                                this.value,
+                                this.inputEl,
+                                this.ctx.metadataEditor.owner.file.path,
+                                this.ctx.metadataEditor,
+                            );
+                        },
+                    onFocus: (next: any) =>
+                        function (this: any, ...args: any) {
+                            // if (this.editing) return;
+                            next.apply(this, args);
+                            if (this.editing) return;
+                            this.editing = true;
+                            this.inputEl.toggleClass('is-editing', this.editing);
+
+                            this.inputEl.empty();
+                            this.inputEl.setText(this.value);
+                        }
+                })
+            );
+            editor?.leaf?.rebuildView();
+            console.log("Metadata-Style: metadata editor get patched");
+            return true;
+        };
+        this.app.workspace.onLayoutReady(() => {
+            if (!patchTextPropertyInList()) {
+                const evt = this.app.workspace.on("layout-change", () => {
+                    patchTextPropertyInList() && this.app.workspace.offref(evt);
                 });
                 this.registerEvent(evt);
             }
@@ -134,7 +301,8 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
                             next.apply(this, args);
                             const icon = getMetadataIcon(this.property.key);
                             if (!icon) return;
-                            const button = setIcon(this, icon, "all-properties");
+                            const button = setPropertyIcon(this, icon, "all-properties");
+                            if (!button) return;
                             button.onClick(() => createIconModal(this.property));
                         },
                     onSelfClick: (next: any) =>

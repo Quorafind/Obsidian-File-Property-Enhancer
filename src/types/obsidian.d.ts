@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as obsidian from 'obsidian';
+import "obsidian";
+import { BannersIconUpdateEvt } from "../utils/define";
+import { IBannerMetadata } from "./global";
 import type { WorkspaceLeaf } from "obsidian";
 
 declare module "obsidian" {
@@ -26,6 +28,7 @@ declare module "obsidian" {
             inferred: any;
             expected: any;
         };
+        rendered: any;
     }
 
     interface TreeItem {
@@ -36,6 +39,20 @@ declare module "obsidian" {
 
     interface WorkspaceLeaf {
         rebuildView: () => void;
+        id: string;
+    }
+
+    interface Workspace {
+        on(
+            name: "banners-update",
+            cb: (leaf: WorkspaceLeaf, data: Partial<IBannerMetadata>) => any,
+        ): EventRef;
+
+        trigger(
+            name: typeof BannersIconUpdateEvt,
+            leaf: WorkspaceLeaf,
+            data: Partial<IBannerMetadata>,
+        ): void;
     }
 
     interface App {

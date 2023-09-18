@@ -1,15 +1,27 @@
 <script lang="ts">
-    import { createEventDispatcher, onMount } from "svelte";
-    import { setIcon } from "obsidian";
+    import { afterUpdate, createEventDispatcher, onMount } from "svelte";
+    import { setIcon, setTooltip } from "obsidian";
 
     export let iconName: string;
     export let idx: number;
     let iconRef: HTMLSpanElement;
     const dispatch = createEventDispatcher();
 
+    let prevIconName: string;
+
     onMount(() => {
         setIcon(iconRef, iconName);
-    })
+        setTooltip(iconRef, iconName);
+        prevIconName = iconName;
+    });
+
+    afterUpdate(() => {
+        if (prevIconName !== iconName) {
+            setIcon(iconRef, iconName);
+            setTooltip(iconRef, iconName);
+            prevIconName = iconName;
+        }
+    });
 
     function handleClick() {
         iconClick({

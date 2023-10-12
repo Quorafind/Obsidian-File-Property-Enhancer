@@ -1,8 +1,5 @@
 /// <reference types="svelte" />
 
-import Banner from "../components/Banner";
-import Header from "../components/Header";
-
 type IconType = "emoji" | "lucide";
 
 interface MetadataIcon {
@@ -25,6 +22,5 @@ type BannerMetadataKey = keyof IBannerMetadata;
 export interface ILeafBanner {
 	leafID: string;
 	filePath: string;
-	banner: Banner;
 	header: Header;
 }

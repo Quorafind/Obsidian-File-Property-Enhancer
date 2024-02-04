@@ -1,8 +1,7 @@
 import { MarkdownRenderer, Plugin, setIcon } from 'obsidian';
 import { around } from "monkey-around";
 import "./styles/custom.css";
-import { createModal, getIcon, setPropertyIcon } from "./utils/utils";
-import MetaManager from "./components/MetaManager";
+import { createModal, getIcon, removeIcon, setPropertyIcon } from "./utils/utils";
 import "./styles/styles.scss";
 import type { filePropertyEnhancerSettings } from "./filePropertyEnhancerSettings";
 import { DEFAULT_SETTINGS } from "./filePropertyEnhancerSettings";
@@ -28,7 +27,8 @@ const SHORTCUTS: ShortcutConfig[] = [
 
 export default class FilePropertyEnhancerPlugin extends Plugin {
 	settings: filePropertyEnhancerSettings;
-	metaManager: MetaManager;
+
+	// metaManager: MetaManager;
 
 	async onload() {
 		await this.loadSettings();
@@ -221,6 +221,7 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
 							}
 							if (this.editing) return;
 							this.inputEl.empty();
+							this.inputEl.toggleClass('markdown-rendered', true);
 							await MarkdownRenderer.render(
 								this.ctx.app,
 								this.value,

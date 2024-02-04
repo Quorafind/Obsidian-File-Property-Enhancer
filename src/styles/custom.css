@@ -47,10 +47,23 @@ span.metadata-property-icon {
 	background-color: var(--metadata-property-icon-hover-background-color);
 }
 
+.metadata-input-longtext.markdown-rendered {
+	white-space: pre-wrap;
+	-webkit-box-orient: unset;
+	-webkit-line-clamp: unset;
+
+	max-height: max-content;
+}
+
+.metadata-input-longtext.markdown-rendered ul, .metadata-input-longtext.markdown-rendered ol {
+	padding-inline-start: var(--list-indent);
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
 /*.metadata-property-key, .metadata-property {*/
 /*    height: var(--input-height);*/
 /*}*/
-
 .metadata-property-key {
 	width: calc(var(--metadata-label-width) + var(--size-4-1));
 }
@@ -211,4 +224,24 @@ li.file-property-enhancer-tab-header {
 	padding: 0;
 
 	transition: padding 0.2s ease-in-out;
+}
+
+
+.icon-delete-btn {
+	cursor: var(--cursor);
+	position: absolute;
+	top: var(--size-2-2);
+	right: 40px;
+	font-size: 24px;
+	line-height: 20px;
+	height: 28px;
+	width: 28px;
+	padding: 0 var(--size-2-2);
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+}
+
+.icon-delete-btn .clickable-icon {
+	height: 28px;
+	width: 28px;
 }

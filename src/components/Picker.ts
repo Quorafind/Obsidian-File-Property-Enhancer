@@ -5,7 +5,7 @@ import { removeIcon } from "../utils/utils";
 
 export class PickerModal extends Modal {
 	private cb: (emoji: any) => void;
-	private picker: PickerComponent;
+	private picker!: PickerComponent;
 	private plugin: FilePropertyEnhancerPlugin;
 	private property: any;
 

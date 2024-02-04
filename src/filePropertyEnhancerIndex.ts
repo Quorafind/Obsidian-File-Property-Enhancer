@@ -26,7 +26,7 @@ const SHORTCUTS: ShortcutConfig[] = [
 ];
 
 export default class FilePropertyEnhancerPlugin extends Plugin {
-	settings: filePropertyEnhancerSettings;
+	settings!: filePropertyEnhancerSettings;
 
 	// metaManager: MetaManager;
 

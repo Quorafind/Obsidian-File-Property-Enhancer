@@ -1,4 +1,4 @@
-import { MarkdownRenderer, Plugin, setIcon } from 'obsidian';
+import { MarkdownRenderer, Plugin, requireApiVersion, setIcon } from 'obsidian';
 import { around } from "monkey-around";
 import "./styles/custom.css";
 import { createModal, getIcon, removeIcon, setPropertyIcon } from "./utils/utils";
@@ -261,9 +261,15 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
 		const createIconModal = (property: any) => createModal(this, property);
 		const getMetadataIcon = (key: string): MetadataIcon | null => getIcon(this, key);
 
-		const patchProperty = () => {
-			const allPropertiesView = this.app.workspace.getLeavesOfType("all-properties")[0]?.view as any;
+		const patchProperty = async () => {
+			let leaf = this.app.workspace.getLeavesOfType("all-properties")[0];
+			if (leaf) {
+				if (requireApiVersion('1.7.2')) {
+					await leaf.loadIfDeferred();
+				}
 
+			}
+			const allPropertiesView = leaf.view as any;
 			if (!allPropertiesView) return false;
 			// @ts-ignore
 			const treeItem = allPropertiesView.root.vChildren._children?.first();
@@ -296,10 +302,10 @@ export default class FilePropertyEnhancerPlugin extends Plugin {
 			console.log("Metadata-Style: all property view get patched");
 			return true;
 		};
-		this.app.workspace.onLayoutReady(() => {
-			if (!patchProperty()) {
-				const evt = this.app.workspace.on("layout-change", () => {
-					patchProperty() && this.app.workspace.offref(evt);
+		this.app.workspace.onLayoutReady(async () => {
+			if (!(await patchProperty())) {
+				const evt = this.app.workspace.on("layout-change", async () => {
+					await patchProperty() && this.app.workspace.offref(evt);
 				});
 				this.registerEvent(evt);
 			}

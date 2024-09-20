@@ -24,7 +24,7 @@
 		"eslint-plugin-svelte": "^2.32.4",
 		"lodash": "^4.17.21",
 		"monkey-around": "^2.3.0",
-		"obsidian": "latest",
+		"obsidian": "^1.7.2",
 		"svelte": "^4.1.1",
 		"svelte-preprocess": "^5.0.4",
 		"terser": "^5.19.2",
